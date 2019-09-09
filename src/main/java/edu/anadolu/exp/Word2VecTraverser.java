@@ -34,6 +34,8 @@ import static edu.anadolu.analysis.Tag.KStem;
  */
 public class Word2VecTraverser {
 
+    private final boolean preserveHTML;
+
     private final class WorkerThread {
 
         private final Path inputWarcFile;
@@ -70,6 +72,12 @@ public class Word2VecTraverser {
             String id = wDoc.id();
 
             if (skip(id)) return 0;
+
+            if (preserveHTML) {
+                out.println(wDoc.content().replaceAll("\\s+"," "));
+                return 1;
+            }
+
 
             org.jsoup.nodes.Document jDoc;
             try {
@@ -201,9 +209,9 @@ public class Word2VecTraverser {
     private final Collection collection;
 
 
-    public Word2VecTraverser(DataSet dataset, String docsDir) {
+    public Word2VecTraverser(DataSet dataset, String docsDir, boolean preserveHTML) {
         this.collection = dataset.collection();
-
+        this.preserveHTML = preserveHTML;
 
         docsPath = Paths.get(docsDir);
         if (!Files.exists(docsPath) || !Files.isReadable(docsPath) || !Files.isDirectory(docsPath)) {
@@ -247,6 +255,7 @@ public class Word2VecTraverser {
             return (name != null && name.toString().endsWith(suffix));
 
         }
+
     }
 
     public static String getAnalyzedTokens(String text, Analyzer analyzer) {
